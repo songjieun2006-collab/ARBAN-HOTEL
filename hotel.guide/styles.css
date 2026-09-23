@@ -1155,3 +1155,30 @@ footer.hotel-footer {
 .cover .cover-friends {
   margin-top: -110px;
 }
+
+/* 호텔 정보 칸의 세로 여백 줄이기 */
+footer.hotel-footer {
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  padding-top: 10px;
+  padding-bottom: 9px;
+  line-height: 1.4;
+}
+
+/* 호텔 이름 아래 간격 */
+.hotel-footer .footer-brand {
+  margin-bottom: 7px;
+}
+
+/* 연락처 줄 사이 간격 */
+.hotel-footer .footer-contact {
+  gap: 3px;
+  line-height: 1.4;
+}
+
+/* 저작권 문구 위 간격 */
+.hotel-footer .footer-copyright {
+  margin-top: 8px;
+  padding-top: 6px;
+}
