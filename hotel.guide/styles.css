@@ -1182,3 +1182,66 @@ footer.hotel-footer {
   margin-top: 8px;
   padding-top: 6px;
 }
+/* 첫 화면 제목 */
+.cover h1.cover-title {
+  margin: 0 0 24px;
+  padding: 0;
+  text-align: center;
+  font-family: "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  letter-spacing: -0.04em;
+}
+
+/* 작은 하늘색 이름표 */
+.cover h1.cover-title > .cover-title-small {
+  display: table;
+  width: fit-content;
+  margin: 0 auto 14px;
+  padding: 8px 18px;
+
+  background: #e5f3f9;
+  border-radius: 999px;
+  color: #42768a;
+
+  font-size: clamp(14px, 3.5vw, 17px);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.03em;
+}
+
+/* 큰 제목 */
+.cover h1.cover-title > .cover-title-main {
+  display: block;
+  margin: 0;
+  padding: 0;
+
+  color: #007e8a;
+  font-size: clamp(25px, 6.5vw, 36px);
+  font-weight: 800;
+  line-height: 1.35;
+  word-break: keep-all;
+  text-wrap: balance;
+  letter-spacing: -0.045em;
+}
+
+/* 부산 글자 아래 연노란 강조선 */
+.cover h1.cover-title .cover-city {
+  display: inline;
+  margin: 0;
+  padding: 0 2px;
+
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+
+  background: linear-gradient(
+    transparent 72%,
+    #fff1a0 72%,
+    #fff1a0 94%,
+    transparent 94%
+  );
+}
+
+/* 제목과 지도가 겹치지 않도록 간격 확보 */
+.cover .cover-art {
+  margin-top: 12px;
+}
