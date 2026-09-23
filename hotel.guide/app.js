@@ -144,14 +144,14 @@
   return `
     <section class="cover">
       <h1 class="cover-title">
-        <span class="cover-title-small">
-          아리와 루가 함께하는
-        </span>
-        <span class="cover-title-main">
-          부산 여행 가이드
-        </span>
-      </h1>
+  <span class="cover-title-small">
+    아리와 루가 함께하는
+  </span>
 
+  <span class="cover-title-main">
+    <span class="cover-city">부산</span> 여행 가이드
+  </span>
+</h1>
       <div class="cover-art">
         ${media(
           hotel.cover,
