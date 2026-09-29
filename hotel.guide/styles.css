@@ -1540,3 +1540,16 @@ body,
 /* 구매 장소와 도보 시간 강조 */
 .custom-guide .welcome-desk-emphasis { font-weight: 800; color: #123b51; background: #fff0b3; padding: 2px 5px; border-radius: 4px; white-space: nowrap; }
 .place-info .place-walk-time { font-weight: 700; color: #123b51; }
+
+/* 모든 장소의 사진 넘기기와 확대 보기 */
+.photo-open { display: block; width: 100%; padding: 0; border: 0; border-radius: 20px; background: transparent; cursor: zoom-in; }
+.photo-open:focus-visible { outline: 3px solid #123b51; outline-offset: -3px; }
+.photo-hint { margin: 8px 0 0; text-align: center; color: #365365; font-size: 13px; }
+.photo-viewer { width: min(1100px, 96vw); max-width: 96vw; max-height: 94dvh; padding: 52px 16px 16px; border: 0; border-radius: 16px; background: #102430; color: #fff; }
+.photo-viewer::backdrop { background: rgb(0 0 0 / 80%); }
+.photo-viewer-image { display: block; width: 100%; height: min(72dvh, 800px); object-fit: contain; }
+.photo-viewer-close { position: absolute; right: 12px; top: 8px; min-height: 40px; padding: 8px 14px; color: #fff; background: transparent; border: 1px solid #aac2cf; border-radius: 8px; cursor: pointer; }
+.photo-viewer-controls { color: #fff; }
+.photo-viewer [hidden] { display: none; }
+body:has(.photo-viewer[open]) { overflow: hidden; }
+@media (max-width: 600px) { .photo-viewer { padding-inline: 8px; } }

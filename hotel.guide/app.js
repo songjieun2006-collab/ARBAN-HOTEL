@@ -514,10 +514,17 @@
     const characterPath = pose.startsWith("../image/" + guideName + "_")
       ? place.characterImage : hotel.characters[guide];
     const hasMap = safeUrl(place.naverUrl) || safeUrl(place.googleUrl);
+    const seenPhotos = new Set();
     const heroPhotos = [
-      { src: place.heroImage || place.image, label: (place.category === "food" || place.category === "cafe") ? "가게 내외부 모습" : place.imageLabel },
-      ...(place.extraPhotos || [])
-    ];
+      { src: place.heroImage || place.image, label: place.imageLabel || "장소 사진" },
+      ...(Array.isArray(place.extraPhotos) ? place.extraPhotos : [])
+    ].filter(photo => {
+      if (!photo || !safeImage(photo.src)) return false;
+      const key = photo.src.normalize("NFC");
+      if (seenPhotos.has(key)) return false;
+      seenPhotos.add(key);
+      return true;
+    });
     // 평소 운영시간을 시간대별로 한 줄씩 표시합니다.
     const hours = place.hours
       ? place.hours.split(/\n+/).map(line => `<span class="hours-line">${readableText(line)}</span>`).join("")
@@ -534,9 +541,19 @@
 
         <div class="detail-hero" data-photo-gallery>
           <div class="photo-slides" tabindex="0" role="region" aria-label="${escapeText(place.name)} 사진">
-            ${heroPhotos.map(photo => `<div class="photo-slide">${media(photo.src, place.name + " " + photo.label, "detail-photo")}</div>`).join("")}
+            ${heroPhotos.length ? heroPhotos.map((photo, index) => `<div class="photo-slide"><button type="button" class="photo-open" data-photo-open="${index}" aria-label="${escapeText(place.name)} 사진 ${index + 1} 크게 보기">${media(photo.src, place.name + " " + (photo.label || "장소 사진"), "detail-photo")}</button></div>`).join("") : `<div class="photo-slide">${media("", place.name + " 사진 준비 중", "detail-photo")}</div>`}
           </div>
           ${heroPhotos.length > 1 ? `<div class="photo-controls"><button type="button" data-photo-step="-1" aria-label="이전 사진">←</button><span data-photo-count aria-live="polite">1 / ${heroPhotos.length}</span><button type="button" data-photo-step="1" aria-label="다음 사진">→</button></div>` : ""}
+          ${heroPhotos.length ? '<p class="photo-hint">사진을 누르면 크게 볼 수 있어요.</p>' : ""}
+          <dialog class="photo-viewer" aria-label="장소 사진 크게 보기">
+            <button type="button" class="photo-viewer-close" aria-label="확대 사진 닫기">닫기 ×</button>
+            <img class="photo-viewer-image" alt="">
+            <div class="photo-controls photo-viewer-controls">
+              <button type="button" data-viewer-step="-1" aria-label="이전 확대 사진">←</button>
+              <span data-viewer-count aria-live="polite"></span>
+              <button type="button" data-viewer-step="1" aria-label="다음 확대 사진">→</button>
+            </div>
+          </dialog>
         </div>
 
         <section class="place-speech" aria-label="${escapeText(guideName)}의 한마디">
@@ -744,27 +761,69 @@
       const track = gallery.querySelector(".photo-slides");
       const count = gallery.querySelector("[data-photo-count]");
       const total = track.children.length;
-      if (total < 2) return;
+      const dialog = gallery.querySelector("dialog");
+      const largeImage = dialog.querySelector("img");
+      let opened = 0;
       const current = () => Math.max(0, Math.min(total - 1, Math.round(track.scrollLeft / (track.clientWidth || 1))));
-      const update = () => { count.textContent = `${current() + 1} / ${total}`; };
+      const update = () => { if (count) count.textContent = `${current() + 1} / ${total}`; };
       const move = step => {
         const next = (current() + step + total) % total;
-        track.scrollTo({ left: next * track.clientWidth, behavior: "smooth" });
+        track.scrollTo({ left: next * track.clientWidth, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
       };
+      const showLarge = index => {
+        const image = track.children[index].querySelector("img");
+        if (!image || !image.naturalWidth) return false;
+        opened = index;
+        largeImage.src = image.currentSrc || image.src;
+        largeImage.alt = image.alt;
+        dialog.querySelector("[data-viewer-count]").textContent = `${index + 1} / ${total}`;
+        dialog.querySelectorAll("[data-viewer-step]").forEach(button => { button.hidden = total < 2; });
+        return true;
+      };
+      const moveLarge = step => {
+        for (let offset = 1; offset <= total; offset++) {
+          const next = (opened + step * offset + total * offset) % total;
+          if (showLarge(next)) break;
+        }
+      };
+      gallery.querySelectorAll("[data-photo-open]").forEach(button => {
+        button.addEventListener("click", () => {
+          if (showLarge(Number(button.dataset.photoOpen))) dialog.showModal();
+        });
+      });
+      dialog.querySelector(".photo-viewer-close").addEventListener("click", () => dialog.close());
+      dialog.addEventListener("click", event => { if (event.target === dialog) dialog.close(); });
+      dialog.addEventListener("close", () => track.scrollTo({left: opened * track.clientWidth, behavior: "instant"}));
+      dialog.querySelectorAll("[data-viewer-step]").forEach(button => {
+        button.addEventListener("click", () => moveLarge(Number(button.dataset.viewerStep)));
+      });
+      dialog.addEventListener("keydown", event => {
+        if (["ArrowLeft", "ArrowRight"].includes(event.key)) {
+          event.preventDefault(); moveLarge(event.key === "ArrowLeft" ? -1 : 1);
+        }
+      });
+      let touchStart = null;
+      largeImage.addEventListener("touchstart", event => { touchStart = event.touches.length === 1 ? event.touches[0].clientX : null; }, {passive:true});
+      largeImage.addEventListener("touchend", event => {
+        if (touchStart !== null && event.changedTouches.length) {
+          const delta = event.changedTouches[0].clientX - touchStart;
+          if (Math.abs(delta) > 60) moveLarge(delta > 0 ? -1 : 1);
+        }
+        touchStart = null;
+      }, {passive:true});
       gallery.querySelectorAll("[data-photo-step]").forEach(button => {
         button.addEventListener("click", () => move(Number(button.dataset.photoStep)));
       });
       track.addEventListener("scroll", update, { passive: true });
       track.addEventListener("keydown", event => {
         if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-          event.preventDefault();
-          move(event.key === "ArrowLeft" ? -1 : 1);
+          event.preventDefault(); move(event.key === "ArrowLeft" ? -1 : 1);
         }
       });
     });
 
     // 한글 파일명의 저장 방식이 다르면 한 번 더 확인합니다.
-    main.querySelectorAll("img").forEach((image) => {
+    main.querySelectorAll("img:not(.photo-viewer-image)").forEach((image) => {
       let retried = false;
       const handleError = () => {
         const source = image.getAttribute("src") || "";
