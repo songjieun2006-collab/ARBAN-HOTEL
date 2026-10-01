@@ -1553,3 +1553,6 @@ body,
 .photo-viewer [hidden] { display: none; }
 body:has(.photo-viewer[open]) { overflow: hidden; }
 @media (max-width: 600px) { .photo-viewer { padding-inline: 8px; } }
+
+/* 코스 아이콘 공통 스타일 */
+.custom-course-symbol svg { display: block; width: 72%; height: 72%; }

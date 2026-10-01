@@ -609,6 +609,17 @@
   // ======================================
 
 
+  // 같은 크기와 선 굵기를 사용하는 코스 아이콘
+  function customCourseIcon(id) {
+    const paths = {
+      together: '<path d="M16 27S5 20 5 12a6 6 0 0 1 11-3 6 6 0 0 1 11 3c0 8-11 15-11 15Z"/>',
+      solo: '<path d="M6 12h16v8a6 6 0 0 1-6 6h-4a6 6 0 0 1-6-6Z"/><path d="M22 13h2a4 4 0 0 1 0 8h-2M4 28h22M11 4v4M17 4v4"/>',
+      rain: '<path d="M4 17a12 12 0 0 1 24 0H4ZM16 4v1m0 12v8a3 3 0 0 0 6 0"/><path d="M11 17c0-7 2-12 5-12s5 5 5 12"/>',
+      abandoju: '<rect x="7" y="3" width="8" height="4" rx="1"/><path d="M8 7v4c0 3-4 5-4 9v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7c0-4-4-6-4-9V7M5 19h12M5 24h12"/><path d="M21 21h9l-1.5 5a3 3 0 0 1-6 0Z"/>'
+    };
+    return `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true">${paths[id] || paths.together}</svg>`;
+  }
+
   // 맞춤형 코스 목록
   function customCoursesPage() {
     return `
@@ -628,17 +639,7 @@
               <p>${readableText(course.summary)}</p>
               <span class="custom-course-action">코스 보기 <span aria-hidden="true">→</span></span>
             </div>
-            <span class="custom-course-symbol" aria-hidden="true">${course.id === "abandoju" ? `
-              <svg viewBox="0 0 64 64" width="100%" height="100%" focusable="false" aria-hidden="true">
-                <g stroke="#194b65" stroke-width="2" stroke-linejoin="round">
-                  <path d="M18 15h12v9c0 5 8 10 8 17v13c0 3-3 5-6 5H16c-3 0-6-2-6-5V41c0-7 8-12 8-17Z" fill="#fff9e7"/>
-                  <rect x="17" y="8" width="14" height="8" rx="2" fill="#007e8a"/>
-                  <path d="M11 37h26v14H11Z" fill="#c9e8d9" stroke="none"/>
-                  <path d="M39 44h21l-3 11c-1 3-4 4-7 4s-6-1-7-4Z" fill="#e9d6ac"/>
-                  <ellipse cx="49.5" cy="44" rx="10.5" ry="3.5" fill="#fff9e7"/>
-                </g>
-              </svg>
-            ` : escapeText(course.symbol)}</span>
+            <span class="custom-course-symbol" aria-hidden="true">${customCourseIcon(course.id)}</span>
           </a>
         `).join("")}
       </div>
